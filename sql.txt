@@ -1,0 +1,101 @@
+/*
+select * from employees;
+
+
+select * from departments;
+
+
+select employee_id,city,department_name from employees e join departments d
+on d.department_id=e.department_id join locations l on d.location_id=l.location_id;
+ 
+
+select e.last_name,e.department_id,d.department_name from employees e full outer join 
+departments d on (e.department_id=d.department_id);
+  
+
+select e.last_name,e.department_id,d.department_name from employees e left outer join 
+departments d on (e.manager_id=d.manager_id); 
+
+
+
+select a.department_id,a.department_name,b.city from departments a,locations b where
+b.location_id between 1800 and 2500 and a.department_id<30;
+
+--subquery
+
+select last_name,salary from employees where salary>(select salary from employees
+ where last_name='Abel');
+
+
+select * from employees where salary=(select max(salary) from employees);
+
+select count(*) from (select * from employees where last_name like 'A%');
+
+ --single row subquery
+
+select last_name,job_id,salary from employees where job_id=
+                            (select job_id from employees where first_name='Jonathon')
+                           and salary >
+                           (select salary from employees where first_name='Jonathon'); 
+
+--group fun in sub query
+
+select last_name, job_id,salary from employees where salary=(select min(salary) from
+ employees);
+
+ select department_id,min(salary) from employees group by department_id having
+ min(salary)> (select min(salary) from employees where department_id=50);
+
+select min(salary) from employees group by department_id;
+
+select employee_id,last_name,job_id,salary from employees where salary <any 
+   (select salary from employees where job_id='IT_PROG') and job_id<> 'IT_PROG' ;
+
+--union
+select employee_id,job_id from employees union select employee_id,job_id from job_history;
+--union with order by
+select employee_id,job_id,department_id from employees union all select employee_id,
+job_id,department_id from job_history order by employee_id;
+-- intersect
+select employee_id,job_id from employees intersect select employee_id,job_id from job_history;
+--minus
+select employee_id from employees minus select employee_id from job_history;
+
+
+--set operations
+select department_id,department_name from departments where department_id<=30 minus
+select department_id,department_name from departments where department_id >=20 order by 1;
+
+--matching select stmt
+select location_id,department_name "department", to_char(null) "warehouse location" from departments 
+union select location_id, to_char(null) "department",state_province from locations;
+
+select employee_id,job_id,salary from employees union select employee_id,job_id,0 from job_history;
+
+--dml
+
+insert into departments(department_id,department_name,manager_id,location_id) values(280,'travel',100,1700);
+or
+ insert into departments values(300,'audit',100,1700);
+
+--create script
+insert into departments(department_id,department_name,location_id) values (&department_id,'&department_name',&location);
+--update single
+update employees set  department_id=50 where employee_id=113;
+--update whole
+update sales_reps set department_id=100;
+
+update dept100 set department_name='Corporate Sales Tax' where department_id=222;
+
+--lock
+select * from dept100 for update;
+--to unlock
+commit;
+
+
+
+--alter table
+alter table persons drop column city;
+
+--creating complex views
+create or replace view empdep(eid,f_name,dept_name,salary,location) as select e.employee_id,e.last_name,d.department_name,e.salary,l.city from employees e join departments d on (e.department_id=d.department_id) locations l on(l.location_id=d.location_id);   
